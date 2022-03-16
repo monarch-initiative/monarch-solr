@@ -1,27 +1,52 @@
 # Relation Graph / BigQuery Join 
 
 
-### Create the table
+### Set the release variable
 
+```bash=
+RELEASE=202203.2
+```
+
+### prepare the tsv files
+
+```bash=
+gsutil cp gs://monarch-ingest/$RELEASE/monarch-kg.tar.gz .
+tar zxf monarch-kg.tar.gz
+cut -f 1,3 monarch-kg_nodes.tsv > monarch-kg_node_names.tsv
+```
+
+### fetch the relations tsv (this location will likely change when/if they're generated with the ontology)
+
+```bash=
+gsutil cp gs://monarch-ingest/monarch-ontology-relations-non-redundant.tsv .
+```
+
+### Create the table (not necessary more than once)
+ 
 172800 is 2 days for the expiration time
 
 ```bash=
 bq mk --dataset --default_table_expiration 172800 --default_partition_expiration 172800 monarch-initiative:monarch_kg
 ```
 
+### upload the uncompressed tsv files to the bucket
+
+```bash=
+gsutil -m cp -J monarch-kg_edges.tsv  monarch-kg_node_names.tsv  monarch-kg_nodes.tsv  monarch-ontology-relations-non-redundant.tsv gs://monarch-ingest/$RELEASE/
+```
 
 ### Set up the schema
 ```bash=
 NODE_SCHEMA=id:STRING,name:STRING
-EDGE_SCHEMA=$(gsutil cat -r 0-500 gs://monarch-ingest/202203/monarch-kg_edges.tsv | head -1 | tr '\t' '\n' | xargs -I {} echo {}:STRING | tr '\n' ',' | sed 's/.$//')
+EDGE_SCHEMA=$(gsutil cat -r 0-500 gs://monarch-ingest/$RELEASE/monarch-kg_edges.tsv | head -1 | tr '\t' '\n' | xargs -I {} echo {}:STRING | tr '\n' ',' | sed 's/.$//')
 RELATION_SCHEMA=subject:STRING,predicate:STRING,object:STRING
 ```
 
 ### Load the data
 ```bash=
-bq load --source_format=CSV --field_delimiter="\t" --schema=$EDGE_SCHEMA  monarch_kg.edges gs://monarch-ingest/202203/monarch-kg_edges.tsv
-bq load --source_format=CSV --quote "" --field_delimiter="\t" --schema=id:STRING,name:STRING  monarch_kg.nodes gs://monarch-ingest/202203/monarch-kg_node_names.tsv
-bq load --source_format=CSV --field_delimiter="\t" --schema=$RELATION_SCHEMA monarch_kg.relations gs://monarch-ingest/202203/monarch-ontology-relations-non-redundant.tsv
+bq load --source_format=CSV --field_delimiter="\t" --schema=$EDGE_SCHEMA  monarch_kg.edges gs://monarch-ingest/$RELEASE/monarch-kg_edges.tsv
+bq load --source_format=CSV --quote "" --field_delimiter="\t" --schema=id:STRING,name:STRING  monarch_kg.nodes gs://monarch-ingest/$RELEASE/monarch-kg_node_names.tsv
+bq load --source_format=CSV --field_delimiter="\t" --schema=$RELATION_SCHEMA monarch_kg.relations gs://monarch-ingest/$RELEASE/monarch-ontology-relations-non-redundant.tsv
 ```
 
 
@@ -61,10 +86,8 @@ where edges.object = closure.id;'
 
 ### Write the edge table back to gcloud
 ```bash=
-bq extract --destination_format CSV --field_delimiter "\t" monarch_kg.edges "gs://monarch-ingest/202203/edges_with_closure/monarch-kg_edges_*.kgx"
+bq extract --destination_format CSV --field_delimiter "\t" monarch_kg.edges "gs://monarch-ingest/$RELEASE/edges_with_closure/monarch-kg_edges_*.kgx"
 ```
-
-
 
 
 ## Details & process
