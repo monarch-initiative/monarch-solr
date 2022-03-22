@@ -90,9 +90,23 @@ bq extract --destination_format CSV --field_delimiter "\t" monarch_kg.edges "gs:
 ```
 
 
-## Details & process
+### Index the TSVs with linkml-solr 
+
+linkml-solr is implied to be installed here, and the tsvs downloaded into ./tsv/
+
+```bash=
+RELEASE=202203.2
+lsolr start-server --core edges --schema edges.yaml --container monarch-solr
+lsolr bulkload -C edges -s edges.yaml tsv/monarch-kg_edges_with_*.tsv
+docker cp monarch-solr:/var/solr/data .
+tar czf solr.tgz data
+gsutil cp solr.tgz gs://monarch-ingest/$RELEASE/
+```
 
 
+
+
+## Working notes below, including relation-graph 
 
 ```bash=
 time relation-graph/target/universal/stage/bin/relation-graph --ontology-file monarch-ontology-final.owl --redundant-output-file monarch-ontology-relations-redundant.tsv --non-redundant-output-file monarch-ontology-relations-non-redundant.tsv --mode tsv --reflexive-subclasses true --equivalence-as-subclass true --property "rdfs:subClassOf" 
