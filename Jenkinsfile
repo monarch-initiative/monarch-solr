@@ -16,7 +16,7 @@ gsutil cp gs://monarch-ingest/monarch-ontology-relations-non-redundant.tsv .
 
 bq mk --dataset --default_table_expiration 172800 --default_partition_expiration 172800 monarch-initiative:monarch_kg || true
 
-gsutil -m cp -J monarch-kg_edges.tsv  monarch-kg_node_names.tsv  monarch-kg_nodes.tsv  monarch-ontology-relations-non-redundant.tsv gs://monarch-ingest/$RELEASE/
+gsutil -m cp -J monarch-kg_edges.tsv monarch-kg_node_names.tsv monarch-kg_nodes.tsv Â monarch-ontology-relations-non-redundant.tsv gs://monarch-ingest/$RELEASE/
 
 '''
       }
@@ -28,8 +28,8 @@ gsutil -m cp -J monarch-kg_edges.tsv  monarch-kg_node_names.tsv  monarch-kg_node
 EDGE_SCHEMA=$(gsutil cat -r 0-500 gs://monarch-ingest/$RELEASE/monarch-kg_edges.tsv | head -1 | tr \'\\t\' \'\\n\' | xargs -I {} echo {}:STRING | tr \'\\n\' \',\' | sed \'s/.$//\')
 RELATION_SCHEMA=subject:STRING,predicate:STRING,object:STRING
 
-bq load --source_format=CSV --field_delimiter="\\t" --schema=$EDGE_SCHEMA  monarch_kg.edges gs://monarch-ingest/$RELEASE/monarch-kg_edges.tsv
-bq load --source_format=CSV --quote "" --field_delimiter="\\t" --schema=id:STRING,name:STRING  monarch_kg.nodes gs://monarch-ingest/$RELEASE/monarch-kg_node_names.tsv
+bq load --source_format=CSV --field_delimiter="\\t" --schema=$EDGE_SCHEMA Â monarch_kg.edges gs://monarch-ingest/$RELEASE/monarch-kg_edges.tsv
+bq load --source_format=CSV --quote "" --field_delimiter="\\t" --schema=id:STRING,name:STRING Â monarch_kg.nodes gs://monarch-ingest/$RELEASE/monarch-kg_node_names.tsv
 bq load --source_format=CSV --field_delimiter="\\t" --schema=$RELATION_SCHEMA monarch_kg.relations gs://monarch-ingest/$RELEASE/monarch-ontology-relations-non-redundant.tsv
 
 '''
@@ -42,29 +42,29 @@ bq load --source_format=CSV --field_delimiter="\\t" --schema=$RELATION_SCHEMA mo
 \'SET @@dataset_id = "monarch_kg";
 
 CREATE OR REPLACE TEMP TABLE
-closure 
+closureÂ 
 (
-    id STRING,
-    ancestors STRING
+Â  Â  id STRING,
+Â  Â  ancestors STRING
 );
 
 insert into closure (id, ancestors)
-select subject, STRING_AGG(object,"|") 
-from relations 
+select subject, STRING_AGG(object,"|")Â 
+from relationsÂ 
 group by subject;
 
 
 ALTER TABLE edges
-  ADD COLUMN IF NOT EXISTS subject_closure STRING,
-  ADD COLUMN IF NOT EXISTS object_closure STRING;
+Â  ADD COLUMN IF NOT EXISTS subject_closure STRING,
+Â  ADD COLUMN IF NOT EXISTS object_closure STRING;
 
 update edges
-set subject_closure = ancestors 
+set subject_closure = ancestorsÂ 
 from closure
 where edges.subject = closure.id;
 
 update edges
-set object_closure = ancestors 
+set object_closure = ancestorsÂ 
 from closure
 where edges.object = closure.id;\'
 
