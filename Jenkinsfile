@@ -16,7 +16,7 @@ gsutil cp gs://monarch-ingest/monarch-ontology-relations-non-redundant.tsv .
 
 bq mk --dataset --default_table_expiration 172800 --default_partition_expiration 172800 monarch-initiative:monarch_kg || true
 
-gsutil -m cp -J monarch-kg_edges.tsv monarch-kg_node_names.tsv monarch-kg_nodes.tsv  monarch-ontology-relations-non-redundant.tsv gs://monarch-ingest/$RELEASE/
+gsutil -m cp -J monarch-kg_edges.tsv monarch-kg_node_names.tsv monarch-kg_nodes.tsv monarch-ontology-relations-non-redundant.tsv gs://monarch-ingest/$RELEASE/
 
 '''
       }
