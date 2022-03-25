@@ -10,7 +10,7 @@ pipeline {
       steps {
         sh '''gsutil cp gs://monarch-ingest/$RELEASE/monarch-kg.tar.gz .
 tar zxf monarch-kg.tar.gz
-cut -f 1,3 monarch-kg_nodes.tsv > monarch-kg_node_names.tsv
+cut -f 1,3 monarch-kg_nodes.tsv | tr -d \'\\015\' > monarch-kg_node_names.tsv
 
 gsutil cp gs://monarch-ingest/monarch-ontology-relations-non-redundant.tsv .
 
