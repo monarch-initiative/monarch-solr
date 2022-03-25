@@ -28,8 +28,8 @@ gsutil -m cp -J monarch-kg_edges.tsv monarch-kg_node_names.tsv monarch-kg_nodes.
 EDGE_SCHEMA=$(gsutil cat -r 0-500 gs://monarch-ingest/$RELEASE/monarch-kg_edges.tsv | head -1 | tr \'\\t\' \'\\n\' | xargs -I {} echo {}:STRING | tr \'\\n\' \',\' | sed \'s/.$//\')
 RELATION_SCHEMA=subject:STRING,predicate:STRING,object:STRING
 
-bq load --source_format=CSV --field_delimiter="\\t" --schema=$EDGE_SCHEMA  monarch_kg.edges gs://monarch-ingest/$RELEASE/monarch-kg_edges.tsv
-bq load --source_format=CSV --quote "" --field_delimiter="\\t" --schema=id:STRING,name:STRING  monarch_kg.nodes gs://monarch-ingest/$RELEASE/monarch-kg_node_names.tsv
+bq load --source_format=CSV --field_delimiter="\\t" --schema=$EDGE_SCHEMA monarch_kg.edges gs://monarch-ingest/$RELEASE/monarch-kg_edges.tsv
+bq load --source_format=CSV --quote "" --field_delimiter="\\t" --schema=id:STRING,name:STRING monarch_kg.nodes gs://monarch-ingest/$RELEASE/monarch-kg_node_names.tsv
 bq load --source_format=CSV --field_delimiter="\\t" --schema=$RELATION_SCHEMA monarch_kg.relations gs://monarch-ingest/$RELEASE/monarch-ontology-relations-non-redundant.tsv
 
 '''
