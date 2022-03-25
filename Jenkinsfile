@@ -74,7 +74,8 @@ bq extract --destination_format CSV --field_delimiter "\\t" monarch_kg.edges "gs
 
     stage('start solr & index') {
       steps {
-        sh '''lsolr start-server --core edges --schema edges.yaml --container monarch-solr
+        sh '''pip install linkml-solr
+lsolr start-server --core edges --schema edges.yaml --container monarch-solr
 sleep 30
 lsolr bulkload -C edges -s edges.yaml tsv/monarch-kg_edges_with_*.tsv
 docker cp monarch-solr:/var/solr/data .
