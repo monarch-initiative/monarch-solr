@@ -1,0 +1,17 @@
+version: '1.0'
+
+volumes:
+  solr-data:
+
+services:
+  solr:
+    image: solr:8
+    env_file:
+      - .env
+    ports:
+      - 8983:8983 
+    volumes:
+      - ./scripts:/scripts
+      - solr-data:/var/solr/data
+    # SOLR_DUMP_FILENAME can be defined within the .env file
+    entrypoint: /scripts/load_solr.sh $SOLR_DUMP_FILENAME
