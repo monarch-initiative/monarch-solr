@@ -6,4 +6,7 @@ SOLR_DUMP_FILENAME="solr.tar.gz"
     echo "Loading Solr dump file '$SOLR_DUMP_FILENAME'" 
     /scripts/download_solr.sh
 
+
+chmod -R a+rwx /opt/solr
+
 tini -s -g -- /opt/solr/docker-entrypoint.sh 
