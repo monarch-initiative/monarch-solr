@@ -7,6 +7,6 @@ SOLR_DUMP_FILENAME="solr.tar.gz"
     /scripts/download_solr.sh
 
 
-chmod -R a+rwx /opt/solr
+sudo chmod -R a+rwx /opt/solr
 
 tini -s -g -- /opt/solr/docker-entrypoint.sh 
