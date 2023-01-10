@@ -14,4 +14,4 @@ services:
       - ./scripts:/scripts
       - solr-data:/var/solr/data
     # SOLR_DUMP_FILENAME can be defined within the .env file
-    entrypoint: /scripts/load_solr.sh $SOLR_DUMP_FILENAME
+    entrypoint: /scripts/load_and_boot_solr.sh $SOLR_DUMP_FILENAME
